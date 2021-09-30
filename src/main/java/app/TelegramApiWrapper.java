@@ -18,13 +18,20 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
     @Override
     public void onUpdateReceived(Update update)
     {
-        if(!update.hasMessage())
-            return;
+        try
+        {
+            if(!update.hasMessage())
+                return;
 
-        var message = update.getMessage();
-        var currentChatId = message.getChatId().toString();
-        var response = bot.formResponse(currentChatId, message.getText());
-        sendResponse(currentChatId, response);
+            var message = update.getMessage();
+            var currentChatId = message.getChatId().toString();
+            var response = bot.formResponse(currentChatId, message.getText());
+            sendResponse(currentChatId, response);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void sendResponse(String chatId, String msgText)

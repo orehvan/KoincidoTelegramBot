@@ -3,18 +3,18 @@ package app;
 import models.Constants;
 import models.User;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BotLogic
 {
 
-    private Map<String, User> usersRepo;
+    private Map<String, User> usersRepo = new HashMap<>();
 
     public String formResponse(String chatId, String text)
     {
 
-        if ((!usersRepo.containsKey(chatId) && text == "/start") ||
-                usersRepo.get(chatId).getRegState() != Constants.regStates.TEST_COMPLETE)
+        if (!usersRepo.containsKey(chatId) || usersRepo.get(chatId).getRegState() != Constants.regStates.TEST_COMPLETE)
         {
             return registerNewUser(chatId, text);
         }
@@ -42,8 +42,8 @@ public class BotLogic
             case DESCRIPTION_REQUESTED -> {
                 user.setDescription(text);
                 user.setRegState(Constants.regStates.TEST_STARTED);
-                return String.format("Вы явно интересная личность, %name!", user.getName() +
-                        "\r\n Чтобы точнее подобрать собеседников для Вас, предлагаю пройти короткий тест.");
+                return String.format("Вы явно интересная личность, %name!", user.getName()) +
+                        "\r\n Чтобы точнее подобрать собеседников для Вас, предлагаю пройти короткий тест.";
             }
             case TEST_COMPLETE -> {
 
