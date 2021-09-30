@@ -23,7 +23,7 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
 
         var message = update.getMessage();
         var currentChatId = message.getChatId().toString();
-        var response = bot.formResponse(message.getText());
+        var response = bot.formResponse(currentChatId, message.getText());
         sendResponse(currentChatId, response);
     }
 
