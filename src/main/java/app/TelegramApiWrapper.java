@@ -20,15 +20,16 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
     {
         try
         {
-            if(!update.hasMessage())
+            if (!update.hasMessage())
+            {
                 return;
+            }
 
             var message = update.getMessage();
             var currentChatId = message.getChatId().toString();
             var response = bot.formResponse(currentChatId, message.getText());
             sendResponse(currentChatId, response);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }

@@ -1,38 +1,38 @@
 package models;
 
-import java.util.List;
-
 public class User
 {
-    private int chatId;
-    private Constants.regStates regState;
+    public Question question;
+
+    private String chatId;
+    private UserState userState;
     private String name;
     private String description;
-    private List<Survey> surveys;
 
     public User()
     {
-        this.regState = Constants.regStates.UNREGISTERED;
+        this.userState = new UserState();
+        this.userState.setRegState(UserState.regState.UNREGISTERED);
     }
 
-    public int getChatId()
+    public String getChatId()
     {
         return chatId;
     }
 
-    public void setChatId(int chatId)
+    public void setChatId(String chatId)
     {
         this.chatId = chatId;
     }
 
-    public Constants.regStates getRegState()
+    public UserState getUserState()
     {
-        return regState;
+        return userState;
     }
 
-    public void setRegState(Constants.regStates state)
+    public void setUserState(UserState.regState state)
     {
-        regState = state;
+        userState.setRegState(state);
     }
 
     public String getName()
@@ -54,4 +54,6 @@ public class User
     {
         this.description = description;
     }
+
+
 }

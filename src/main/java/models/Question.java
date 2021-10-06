@@ -1,27 +1,35 @@
 package models;
 
+import java.util.HashMap;
+
 public class Question
 {
-    private String text;
-    private Boolean answer;
+    private String question;
+    private HashMap<String, String> answers;
 
     public Question(String text)
     {
-        this.text = text;
+        this.question = text;
+        this.answers = new HashMap<>();
     }
 
-    public String getText()
+    public void addAnswer(String chatId, String answer)
     {
-        return text;
+        this.answers.put(chatId, answer);
     }
 
-    public void setAnswer(Boolean answer)
+    public String getAnswerByChatId(String chatId)
     {
-        this.answer = answer;
+        return this.answers.getOrDefault(chatId, "Missing ChatId");
     }
 
-    public Boolean getAnswer()
+    public String getQuestion()
     {
-        return answer;
+        return question;
+    }
+
+    public void setQuestion(String question)
+    {
+        this.question = question;
     }
 }
