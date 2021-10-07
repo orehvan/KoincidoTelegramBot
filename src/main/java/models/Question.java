@@ -7,9 +7,8 @@ public class Question
     private String question;
     private HashMap<String, String> answers;
 
-    public Question(String text)
+    public Question()
     {
-        this.question = text;
         this.answers = new HashMap<>();
     }
 

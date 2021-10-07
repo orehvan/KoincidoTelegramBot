@@ -1,18 +1,19 @@
 package app;
 
+import models.Enums.regState;
 import models.User;
 import models.UserRepository;
-import models.UserState;
 
 public class BotLogic
 {
 
-    private UserRepository userRepo = new UserRepository();
+    private final UserRepository userRepo = new UserRepository();
 
-    public String formResponse(String chatId, String text)
+    public String formResponse(long chatId, String text)
     {
 
-        if (!userRepo.containsChatId(chatId) || userRepo.getUserByChatId(chatId).getUserState().getRegState() != UserState.regState.REGISTERED)
+        if (!userRepo.containsKey(chatId) ||
+                userRepo.get(chatId).getUserState().getRegState() != regState.REGISTERED)
         {
             return registerNewUser(chatId, text);
         }
@@ -20,37 +21,45 @@ public class BotLogic
         return "Smth went wrong";
     }
 
-    public String registerNewUser(String chatId, String text)
+    public String registerNewUser(long chatId, String text)
     {
-        User user;
-        if (userRepo.containsChatId(chatId))
-        {
-            user = userRepo.getUserByChatId(chatId);
-        }
-        else {
-            user = new User();
-        }
+        var user = userRepo.getOrDefault(chatId, new User());
+
         switch (user.getUserState().getRegState())
         {
             case UNREGISTERED -> {
-                userRepo.addUser(user);
-                user.setUserState(UserState.regState.NAME_REQUESTED);
+                userRepo.put(chatId, user);
+                user.setUserRegState(regState.NAME_REQUESTED);
+
                 return "Приветствую! Я - бот для знакомств по интересам. \r\n" +
                         "Давайте знакомиться! Как к Вам можно обращаться?";
             }
             case NAME_REQUESTED -> {
                 user.setName(text);
-                user.setUserState(UserState.regState.DESCRIPTION_REQUESTED);
-                return String.format("Очень рад, %name!", user.getName()) +
-                        "\r\n Расскажите что-нибудь о себе, буквально пару слов.";
+                user.setUserRegState(regState.DESCRIPTION_REQUESTED);
+
+                return String.format("Очень рад, %s!", user.getName()) +
+                        "\r\nРасскажите что-нибудь о себе, буквально пару слов.";
             }
             case DESCRIPTION_REQUESTED -> {
                 user.setDescription(text);
-                user.setUserState(UserState.regState.QUESTION_REQUESTED);
-                return String.format("Вы явно интересная личность, %name!", user.getName()) +
-                        "\r\n Чтобы точнее подобрать собеседников для Вас, предлагаю пройти короткий тест.";
+                user.setUserRegState(regState.QUESTION_REQUESTED);
+
+                return String.format("Вы явно интересная личность, %s!", user.getName()) +
+                        "\r\nПредлагаю Вам придумать вопрос. Другие пользователи будут отвечать на него, а вы сможете выбрать самые интересные ответы и пообщаться с респондентами!";
+            }
+            case QUESTION_REQUESTED -> {
+                user.question.setQuestion(text);
+                user.setUserRegState(regState.REGISTERED);
+
+                return "Вам тоже уже интересно, что Вам ответят?\r\n" +
+                        "Пока Вы ждёте, предлагаю поотвечать на чужие вопросы. Используйте команду /next, чтобы получить первый вопрос!";
+            }
+            case REGISTERED -> {
+                return "Error: registration done already.";
             }
         }
+
         return "Something went wrong during the registration.";
     }
 }

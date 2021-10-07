@@ -1,18 +1,17 @@
 package models;
 
+import models.Enums.regState;
+
 public class UserState
 {
-    public enum regState
-    { UNREGISTERED, NAME_REQUESTED, DESCRIPTION_REQUESTED, QUESTION_REQUESTED, REGISTERED }
-
     private regState regState;
 
-    public UserState.regState getRegState()
+    public regState getRegState()
     {
         return regState;
     }
 
-    public void setRegState(UserState.regState regState)
+    public void setRegState(regState regState)
     {
         this.regState = regState;
     }

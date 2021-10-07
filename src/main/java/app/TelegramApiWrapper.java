@@ -26,7 +26,7 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
             }
 
             var message = update.getMessage();
-            var currentChatId = message.getChatId().toString();
+            var currentChatId = message.getChatId();
             var response = bot.formResponse(currentChatId, message.getText());
             sendResponse(currentChatId, response);
         } catch (Exception e)
@@ -35,10 +35,10 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
         }
     }
 
-    private void sendResponse(String chatId, String msgText)
+    private void sendResponse(Long chatId, String msgText)
     {
         var sender = new SendMessage();
-        sender.setChatId(chatId);
+        sender.setChatId(chatId.toString());
         sender.setText(msgText);
 
         try

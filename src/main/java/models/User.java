@@ -1,26 +1,29 @@
 package models;
 
+import models.Enums.regState;
+
 public class User
 {
     public Question question;
 
-    private String chatId;
+    private long chatId;
     private UserState userState;
     private String name;
     private String description;
 
     public User()
     {
+        this.question = new Question();
         this.userState = new UserState();
-        this.userState.setRegState(UserState.regState.UNREGISTERED);
+        this.userState.setRegState(regState.UNREGISTERED);
     }
 
-    public String getChatId()
+    public long getChatId()
     {
         return chatId;
     }
 
-    public void setChatId(String chatId)
+    public void setChatId(long chatId)
     {
         this.chatId = chatId;
     }
@@ -30,9 +33,9 @@ public class User
         return userState;
     }
 
-    public void setUserState(UserState.regState state)
+    public void setUserRegState(regState regState)
     {
-        userState.setRegState(state);
+        this.userState.setRegState(regState);
     }
 
     public String getName()
