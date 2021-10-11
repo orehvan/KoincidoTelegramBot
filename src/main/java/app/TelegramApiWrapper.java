@@ -4,7 +4,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import models.Constants;
 
 public class TelegramApiWrapper extends TelegramLongPollingBot
 {
@@ -53,12 +52,12 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
     @Override
     public String getBotUsername()
     {
-        return Constants.getBOT_NAME();
+        return System.getenv("TelegramBotName");
     }
 
     @Override
     public String getBotToken()
     {
-        return Constants.getBOT_TOKEN();
+        return System.getenv("TelegramBotToken");
     }
 }

@@ -1,83 +1,32 @@
 package models;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.Random;
 
-public class UserRepository implements Map<Long, User>
+public class UserRepository
 {
     private HashMap<Long, User> userRepo = new HashMap<>();
 
-    @Override
-    public int size()
+    public User getByChatId(long chatId)
     {
-        return userRepo.size();
+        return userRepo.get(chatId);
     }
 
-    @Override
-    public boolean isEmpty()
+    public User getByChatIdOrNew(long chatId)
     {
-        return userRepo.isEmpty();
+        return userRepo.getOrDefault(chatId, new User(chatId));
     }
 
-    @Override
-    public boolean containsKey(Object key)
+    public User getRandomUser()
     {
-        return userRepo.containsKey(key);
+        var generator = new Random();
+        var users = userRepo.values().toArray();
+
+        return (User) users[generator.nextInt(users.length)];
     }
 
-    @Override
-    public boolean containsValue(Object value)
+    public void put(User user)
     {
-        return userRepo.containsValue(value);
-    }
-
-    @Override
-    public User get(Object key)
-    {
-        return userRepo.get(key);
-    }
-
-    @Override
-    public User put(Long key, User value)
-    {
-        return userRepo.put(key, value);
-    }
-
-    @Override
-    public User remove(Object key)
-    {
-        return userRepo.remove(key);
-    }
-
-    @Override
-    public void putAll(Map<? extends Long, ? extends User> m)
-    {
-        userRepo.putAll(m);
-    }
-
-    @Override
-    public void clear()
-    {
-        userRepo.clear();
-    }
-
-    @Override
-    public Set<Long> keySet()
-    {
-        return userRepo.keySet();
-    }
-
-    @Override
-    public Collection<User> values()
-    {
-        return userRepo.values();
-    }
-
-    @Override
-    public Set<Entry<Long, User>> entrySet()
-    {
-        return userRepo.entrySet();
+        this.userRepo.put(user.getChatId(), user);
     }
 }

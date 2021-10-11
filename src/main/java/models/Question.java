@@ -4,15 +4,15 @@ import java.util.HashMap;
 
 public class Question
 {
-    private String question;
-    private HashMap<String, String> answers;
+    private String questionText;
+    private HashMap<Long, String> answers;
 
     public Question()
     {
         this.answers = new HashMap<>();
     }
 
-    public void addAnswer(String chatId, String answer)
+    public void addAnswer(long chatId, String answer)
     {
         this.answers.put(chatId, answer);
     }
@@ -22,13 +22,13 @@ public class Question
         return this.answers.getOrDefault(chatId, "Missing ChatId");
     }
 
-    public String getQuestion()
+    public String getQuestionText()
     {
-        return question;
+        return questionText;
     }
 
-    public void setQuestion(String question)
+    public void setQuestionText(String questionText)
     {
-        this.question = question;
+        this.questionText = questionText;
     }
 }
