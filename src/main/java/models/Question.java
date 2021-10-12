@@ -1,5 +1,6 @@
 package models;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class Question
@@ -17,7 +18,12 @@ public class Question
         this.answers.put(chatId, answer);
     }
 
-    public String getAnswerByChatId(String chatId)
+    public Collection<Long> getAllRespondentsChatIds()
+    {
+        return answers.keySet();
+    }
+
+    public String getAnswerByChatId(Long chatId)
     {
         return this.answers.getOrDefault(chatId, "Missing ChatId");
     }
