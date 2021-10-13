@@ -3,7 +3,7 @@ package models;
 import java.util.HashMap;
 import java.util.Random;
 
-public class UserRepository
+public class UserLocalRepository
 {
     private HashMap<Long, User> userRepo = new HashMap<>();
 

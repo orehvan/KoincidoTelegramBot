@@ -2,11 +2,11 @@ package app;
 
 import models.Constants.Emojis;
 import models.Constants.Enums.*;
-import models.UserRepository;
+import models.UserLocalRepository;
 
 public class BotLogic
 {
-    private final UserRepository userRepo = new UserRepository();
+    private final UserLocalRepository userRepo = new UserLocalRepository();
 
     public String formResponse(long chatId, String text)
     {
