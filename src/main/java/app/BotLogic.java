@@ -2,14 +2,19 @@ package app;
 
 import models.Constants.Emojis;
 import models.Constants.Enums.*;
-import models.UserLocalRepository;
+import models.LocalUserRepository;
+import models.MongoDBUserRepository;
 
 public class BotLogic
 {
-    private final UserLocalRepository userRepo = new UserLocalRepository();
+    //private final LocalUserRepository userRepo = new LocalUserRepository();
+    private MongoDBUserRepository userRepo;
 
     public String formResponse(long chatId, String text)
     {
+        userRepo = new MongoDBUserRepository();
+        userRepo.initialize();
+
         if (text.equals("/start") || userRepo.getByChatIdOrNew(chatId).getUserState().getRegState() != RegState.REGISTERED)
         {
             return registerNewUser(chatId, text);
@@ -51,7 +56,7 @@ public class BotLogic
         {
 
             user.setUserQuestState(QuestState.ANSWER_REQUESTED);
-            var questioner = userRepo.getRandomUser();
+            var questioner = userRepo.getRandom();
             user.setLastQuestionChatId(questioner.getChatId());
 
             return String.format("%s %s спрашивает:\r\n", Emojis.hmm, questioner.getName()) +

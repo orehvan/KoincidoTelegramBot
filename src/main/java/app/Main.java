@@ -14,17 +14,6 @@ public class Main
 {
     public static void main(String[] args)
     {
-        String connectionString = System.getProperty("mongodb.uri");
-        try(MongoClient mongoClient = MongoClients.create(connectionString))
-        {
-            List<Document> databases = mongoClient.listDatabases().into(new ArrayList<>());
-            databases.forEach(db -> System.out.println(db.toJson()));
-        }
-        catch (Exception connection)
-        {
-            connection.printStackTrace();
-        }
-
         var bot = new BotLogic();
         var telegramWrapper = new TelegramApiWrapper(bot);
 

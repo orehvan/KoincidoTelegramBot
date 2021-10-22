@@ -3,9 +3,15 @@ package models;
 import java.util.HashMap;
 import java.util.Random;
 
-public class UserLocalRepository
+public class LocalUserRepository implements UserRepository
 {
-    private HashMap<Long, User> userRepo = new HashMap<>();
+    private HashMap<Long, User> userRepo;
+
+    @Override
+    public void initialize()
+    {
+        userRepo = new HashMap<>();
+    }
 
     public User getByChatId(long chatId)
     {
@@ -17,7 +23,7 @@ public class UserLocalRepository
         return userRepo.getOrDefault(chatId, new User(chatId));
     }
 
-    public User getRandomUser()
+    public User getRandom()
     {
         var generator = new Random();
         var users = userRepo.values().toArray();
