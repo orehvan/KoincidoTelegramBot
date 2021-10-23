@@ -2,7 +2,6 @@ package app;
 
 import models.Constants.Emojis;
 import models.Constants.Enums.*;
-import models.LocalUserRepository;
 import models.MongoDBUserRepository;
 
 public class BotLogic
@@ -39,10 +38,10 @@ public class BotLogic
         output.append(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()));
 
         for (var respondentId :
-                user.question.getAllRespondentsChatIds())
+                user.question.getAnswers().keySet())
         {
             var answer = user.question.getAnswerByChatId(respondentId);
-            output.append(String.format("%s: %s\r\n", userRepo.getByChatId(respondentId).getName(), answer));
+            output.append(String.format("%s: %s\r\n", userRepo.getByChatId(Long.valueOf(respondentId)).getName(), answer));
         }
 
         return output.toString();
@@ -56,8 +55,9 @@ public class BotLogic
         {
 
             user.setQuestState(QuestState.ANSWER_REQUESTED);
-            var questioner = userRepo.getRandom();
+            var questioner = userRepo.getOtherRandom(user);
             user.setLastQuestionChatId(questioner.getChatId());
+            userRepo.put(user);
 
             return String.format("%s %s спрашивает:\r\n", Emojis.hmm, questioner.getName()) +
                     questioner.question.getQuestionText();
@@ -65,8 +65,11 @@ public class BotLogic
         else
         {
             var questioner = userRepo.getByChatId(user.getLastQuestionChatId());
-            user.setQuestState(QuestState.IDLE);
             questioner.question.addAnswer(chatId, text);
+            userRepo.put(questioner);
+
+            user.setQuestState(QuestState.IDLE);
+            userRepo.put(user);
 
             return String.format("Ответ записан. %s /next?", Emojis.whiteCheckMark);
         }

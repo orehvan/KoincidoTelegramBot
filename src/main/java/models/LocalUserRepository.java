@@ -23,7 +23,7 @@ public class LocalUserRepository implements UserRepository
         return userRepo.getOrDefault(chatId, new User(chatId));
     }
 
-    public User getRandom()
+    public User getOtherRandom(User requested)
     {
         var generator = new Random();
         var users = userRepo.values().toArray();

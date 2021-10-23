@@ -1,29 +1,36 @@
 package models;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Question
 {
     private String questionText;
-    private HashMap<Long, String> answers;
+    private HashMap<String, String> answers;
 
     public Question()
     {
         this.answers = new HashMap<>();
     }
 
-    public void addAnswer(long chatId, String answer)
+    public HashMap<String, String> getAnswers()
     {
-        this.answers.put(chatId, answer);
+        return answers;
     }
 
-    public Collection<Long> getAllRespondentsChatIds()
+    public void addAnswer(long chatId, String answer)
+    {
+        this.answers.put(Objects.toString(chatId), answer);
+    }
+
+    public Collection<String> getAllRespondentsChatIds()
     {
         return answers.keySet();
     }
 
-    public String getAnswerByChatId(Long chatId)
+    public String getAnswerByChatId(String chatId)
     {
         return this.answers.getOrDefault(chatId, "Missing ChatId");
     }
