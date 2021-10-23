@@ -1,6 +1,7 @@
 package models;
 
-import models.Constants.Enums.*;
+import models.Constants.Enums.QuestState;
+import models.Constants.Enums.RegState;
 
 public class User
 {
@@ -10,14 +11,21 @@ public class User
     private UserState userState;
     private String name;
     private String description;
+    private long lastQuestionChatId;
+    private RegState regState;
+    private QuestState questState;
+
+    public User()
+    {
+    }
 
     public User(long chatId)
     {
         this.chatId = chatId;
         this.question = new Question();
         this.userState = new UserState();
-        this.userState.setRegState(RegState.UNREGISTERED);
-        this.userState.setQuestState(QuestState.UNAVAILABLE);
+        this.regState = RegState.UNREGISTERED;
+        this.questState = QuestState.UNAVAILABLE;
     }
 
     public long getChatId()
@@ -28,26 +36,6 @@ public class User
     public void setChatId(long chatId)
     {
         this.chatId = chatId;
-    }
-
-    public UserState getUserState()
-    {
-        return userState;
-    }
-
-    public void setLastQuestionChatId(long chatId)
-    {
-        this.userState.setLastQuestionChatId(chatId);
-    }
-
-    public void setUserQuestState(QuestState readyState)
-    {
-        this.userState.setQuestState(readyState);
-    }
-
-    public void setUserRegState(RegState regState)
-    {
-        this.userState.setRegState(regState);
     }
 
     public String getName()
@@ -70,5 +58,33 @@ public class User
         this.description = description;
     }
 
+    public long getLastQuestionChatId()
+    {
+        return lastQuestionChatId;
+    }
 
+    public void setLastQuestionChatId(long lastQuestionChatId)
+    {
+        this.lastQuestionChatId = lastQuestionChatId;
+    }
+
+    public RegState getRegState()
+    {
+        return regState;
+    }
+
+    public void setRegState(RegState regState)
+    {
+        this.regState = regState;
+    }
+
+    public QuestState getQuestState()
+    {
+        return questState;
+    }
+
+    public void setQuestState(QuestState questState)
+    {
+        this.questState = questState;
+    }
 }

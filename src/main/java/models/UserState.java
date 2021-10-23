@@ -5,7 +5,6 @@ import models.Constants.Enums.*;
 public class UserState
 {
     private long lastQuestionChatId;
-
     private RegState regState;
     private QuestState questState;
 

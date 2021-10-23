@@ -15,19 +15,16 @@ public class MongoDBUserRepository implements UserRepository
     @Override
     public void initialize()
     {
-        try (var mongoClient = MongoClients.create(System.getenv("MongoDBConnectionString")))
-        {
-            var database = mongoClient.getDatabase("BotData");
-            var codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                    CodecRegistries.fromProviders(PojoCodecProvider.builder()
-                            .register(ClassModel.builder(User.class).enableDiscriminator(true).build()).automatic(true)
-                            .build()));
+        var codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
+                CodecRegistries.fromProviders(PojoCodecProvider.builder()
+                        .register(
+                                ClassModel.builder(User.class).enableDiscriminator(true).build(),
+                                ClassModel.builder(UserState.class).enableDiscriminator(true).build()
+                        ).automatic(true)
+                        .build()));
 
-            userRepo = database.withCodecRegistry(codecRegistry).getCollection("UserRepository", User.class);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        userRepo = MongoClients.create(System.getenv("MongoDBConnectionString")).getDatabase("BotData")
+                .withCodecRegistry(codecRegistry).getCollection("UserRepository", User.class);
     }
 
     @Override
@@ -53,7 +50,11 @@ public class MongoDBUserRepository implements UserRepository
     @Override
     public void put(User user)
     {
-        userRepo.replaceOne(Filters.eq("chatId", user.getChatId()), user);
+        if (userRepo.find(Filters.eq("chatId", user.getChatId())).first() != null)
+        {
+            userRepo.deleteOne(Filters.eq("chatId", user.getChatId()));
+        }
+        userRepo.insertOne(user);
     }
 }
 
