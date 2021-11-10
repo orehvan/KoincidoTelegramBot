@@ -5,20 +5,19 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.ClassModel;
 import org.bson.codecs.pojo.PojoCodecProvider;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.util.List;
 
 public class MongoDBUserRepository implements UserRepository
 {
     MongoCollection<User> userRepo;
 
-    @Override
-    public void initialize()
+    public MongoDBUserRepository()
     {
         var codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(PojoCodecProvider.builder()
@@ -50,9 +49,10 @@ public class MongoDBUserRepository implements UserRepository
     public User getOtherRandom(User requested)
     {
         var user = requested;
+
         while (user.getChatId() == requested.getChatId())
         {
-            var result = userRepo.aggregate(Arrays.asList(Aggregates.sample(1)));
+            var result = userRepo.aggregate(List.of(Aggregates.sample(1)));
             var iter = result.iterator();
             user = iter.next();
         }
@@ -63,11 +63,8 @@ public class MongoDBUserRepository implements UserRepository
     @Override
     public void put(User user)
     {
-        if (userRepo.find(Filters.eq("chatId", user.getChatId())).first() != null)
-        {
-            userRepo.deleteOne(new Document("chatId", user.getChatId()));
-        }
-        userRepo.insertOne(user);
+        userRepo.updateOne(Filters.eq("chatId", user.getChatId()), new Document("$set", user),
+                new UpdateOptions().upsert(true));
     }
 }
 

@@ -5,7 +5,7 @@ import models.Constants.Enums.*;
 public class UserState
 {
     private long lastQuestionChatId;
-    private RegState regState;
+    private ChatState chatState;
     private QuestState questState;
 
     public long getLastQuestionChatId()
@@ -18,14 +18,14 @@ public class UserState
         this.lastQuestionChatId = lastQuestionChatId;
     }
 
-    public RegState getRegState()
+    public ChatState getRegState()
     {
-        return regState;
+        return chatState;
     }
 
-    public void setRegState(RegState regState)
+    public void setRegState(ChatState chatState)
     {
-        this.regState = regState;
+        this.chatState = chatState;
     }
 
     public QuestState getQuestState()

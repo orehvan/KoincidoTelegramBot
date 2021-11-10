@@ -2,11 +2,9 @@ package models;
 
 public interface UserRepository
 {
-    public void initialize();
+    User getByChatId(long chatId);
+    User getByChatIdOrNew(long chatId);
+    User getOtherRandom(User requested);
 
-    public User getByChatId(long chatId);
-    public User getByChatIdOrNew(long chatId);
-    public User getOtherRandom(User requested);
-
-    public void put(User user);
+    void put(User user);
 }

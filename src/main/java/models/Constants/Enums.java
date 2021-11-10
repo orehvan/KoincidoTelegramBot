@@ -2,7 +2,7 @@ package models.Constants;
 
 public class Enums
 {
-    public enum RegState
+    public enum ChatState
     {
         UNREGISTERED,
         NAME_REQUESTED,

@@ -1,20 +1,17 @@
 package app;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import org.bson.Document;
+import models.MongoDBUserRepository;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main
 {
     public static void main(String[] args)
     {
-        var bot = new BotLogic();
+        var userRepo = new MongoDBUserRepository();
+
+        var bot = new BotLogic(userRepo);
         var telegramWrapper = new TelegramApiWrapper(bot);
 
         try

@@ -20,6 +20,11 @@ public class Question
         return answers;
     }
 
+    public void setAnswers(HashMap<String, String> answers)
+    {
+        this.answers = answers;
+    }
+
     public void addAnswer(long chatId, String answer)
     {
         this.answers.put(Objects.toString(chatId), answer);

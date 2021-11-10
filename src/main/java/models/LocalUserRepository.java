@@ -7,8 +7,7 @@ public class LocalUserRepository implements UserRepository
 {
     private HashMap<Long, User> userRepo;
 
-    @Override
-    public void initialize()
+    public LocalUserRepository()
     {
         userRepo = new HashMap<>();
     }

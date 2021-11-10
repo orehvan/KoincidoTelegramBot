@@ -1,18 +1,17 @@
 package models;
 
 import models.Constants.Enums.QuestState;
-import models.Constants.Enums.RegState;
+import models.Constants.Enums.ChatState;
 
 public class User
 {
     public Question question;
 
     private long chatId;
-    private UserState userState;
     private String name;
     private String description;
     private long lastQuestionChatId;
-    private RegState regState;
+    private ChatState chatState;
     private QuestState questState;
 
     public User()
@@ -23,8 +22,7 @@ public class User
     {
         this.chatId = chatId;
         this.question = new Question();
-        this.userState = new UserState();
-        this.regState = RegState.UNREGISTERED;
+        this.chatState = ChatState.UNREGISTERED;
         this.questState = QuestState.UNAVAILABLE;
     }
 
@@ -68,14 +66,14 @@ public class User
         this.lastQuestionChatId = lastQuestionChatId;
     }
 
-    public RegState getRegState()
+    public ChatState getChatState()
     {
-        return regState;
+        return chatState;
     }
 
-    public void setRegState(RegState regState)
+    public void setChatState(ChatState chatState)
     {
-        this.regState = regState;
+        this.chatState = chatState;
     }
 
     public QuestState getQuestState()
