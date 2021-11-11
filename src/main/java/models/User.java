@@ -85,4 +85,9 @@ public class User
     {
         this.questState = questState;
     }
+
+    public String printUserProfile()
+    {
+        return name + "\r\n" + description;
+    }
 }

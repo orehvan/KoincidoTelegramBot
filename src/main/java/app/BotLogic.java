@@ -10,13 +10,20 @@ public record BotLogic(UserRepository userRepo)
 
     public String formResponse(long chatId, String text)
     {
-        if (text.equals("/start") || userRepo.getByChatIdOrNew(chatId).getChatState() != ChatState.REGISTERED)
+        if (text.equals("/start") || text.equals(String.format("Регистрация %s", Emojis.MEMO)) ||
+                userRepo.getByChatIdOrNew(chatId).getChatState() != ChatState.REGISTERED)
         {
             return registerNewUser(chatId, text);
-        } else if (text.equals("/next") || userRepo.getByChatId(chatId).getQuestState() == QuestState.ANSWER_REQUESTED)
+        }
+        else if (text.equals("/next") || text.equals(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT)) ||
+                userRepo.getByChatId(chatId).getQuestState() == QuestState.ANSWER_REQUESTED)
         {
-            return recordNewAnswer(chatId, text);
-        } else if (text.equals("/answers") && userRepo.getByChatId(chatId).getQuestState() == QuestState.IDLE)
+            var skip = text.equals("/next") || text.equals(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT));
+
+            return recordNewAnswer(chatId, text, skip);
+        }
+        else if (text.equals("/answers") || text.equals(String.format("Список ответов %s", Emojis.SPEECH_BUBBLE)) &&
+                userRepo.getByChatId(chatId).getQuestState() == QuestState.IDLE)
         {
             return showAnswers(chatId);
         }
@@ -42,9 +49,14 @@ public record BotLogic(UserRepository userRepo)
         return output.toString();
     }
 
-    private String recordNewAnswer(long chatId, String text)
+    private String recordNewAnswer(long chatId, String text, boolean skip)
     {
         var user = userRepo.getByChatId(chatId);
+
+        if (skip)
+        {
+            user.setQuestState(QuestState.IDLE);
+        }
 
         if (user.getQuestState() == QuestState.IDLE)
         {
@@ -54,9 +66,10 @@ public record BotLogic(UserRepository userRepo)
             user.setLastQuestionChatId(questioner.getChatId());
             userRepo.put(user);
 
-            return String.format("%s %s спрашивает:\r\n", Emojis.hmm, questioner.getName()) +
+            return String.format("%s %s спрашивает:\r\n", Emojis.HMM, questioner.getName()) +
                     questioner.question.getQuestionText();
-        } else
+        }
+        else
         {
             var questioner = userRepo.getByChatId(user.getLastQuestionChatId());
             questioner.question.addAnswer(chatId, text);
@@ -65,7 +78,7 @@ public record BotLogic(UserRepository userRepo)
             user.setQuestState(QuestState.IDLE);
             userRepo.put(user);
 
-            return String.format("Ответ записан. %s /next?", Emojis.whiteCheckMark);
+            return String.format("Ответ записан. %s /next?", Emojis.WHITE_CHECK_MARK);
         }
     }
 
@@ -78,7 +91,7 @@ public record BotLogic(UserRepository userRepo)
             case UNREGISTERED -> {
                 user.setChatState(ChatState.NAME_REQUESTED);
                 userRepo.put(user);
-                return String.format("Приветствую! %s Я - бот для знакомств по интересам. \r\n", Emojis.wave) +
+                return String.format("Приветствую! %s Я - бот для знакомств по интересам. \r\n", Emojis.WAVE) +
                         "Давайте знакомиться! Как к Вам можно обращаться?";
             }
             case NAME_REQUESTED -> {
@@ -109,7 +122,7 @@ public record BotLogic(UserRepository userRepo)
                 user.setChatState(ChatState.NAME_REQUESTED);
                 user.setQuestState(QuestState.UNAVAILABLE);
                 userRepo.put(user);
-                return String.format("Окей, я сделаю вид, что вижу Вас впервые. %s", Emojis.sweatGrim) +
+                return String.format("Окей, я сделаю вид, что вижу Вас впервые. %s", Emojis.SWEAT_GRIM) +
                         "Так, как говорите, вас зовут?";
             }
         }
