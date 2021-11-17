@@ -3,24 +3,65 @@ package app;
 import models.Constants.Emojis;
 import models.Constants.Enums.ChatState;
 import models.Constants.Enums.QuestState;
+import models.Constants.Enums.UpdateType;
 import models.UserRepository;
+
+import java.util.HashMap;
 
 public record BotLogic(UserRepository userRepo)
 {
+    public void updateUsername(long chatId, String username)
+    {
+        var user = userRepo.getByChatId(chatId);
+        user.setUsername(username);
+        userRepo.put(user);
+    }
 
-    public String formResponse(long chatId, String text)
+    public Tuple<String, HashMap<Long, String>> formResponse(UpdateType updateType, long chatId, String text)
+    {
+        switch (updateType)
+        {
+
+            case MESSAGE -> {
+                return respondToMessage(chatId, text);
+            }
+            case CALLBACK -> {
+                return respondToCallback(text);
+            }
+            default -> {
+                return new Tuple<>("Incorrect input", null);
+            }
+        }
+    }
+
+    private Tuple<String, HashMap<Long, String>> respondToCallback(String text)
+    {
+        var user = userRepo.getByChatId(Long.parseLong(text));
+
+        if (user == null)
+        {
+            return new Tuple<>("User not found", null);
+        }
+
+        var userLink = new HashMap<Long, String>();
+        userLink.put(0L, String.format("t.me/%s", user.getUsername()));
+
+        return new Tuple<>(user.printUserProfile(), userLink);
+    }
+
+    private Tuple<String, HashMap<Long, String>> respondToMessage(long chatId, String text)
     {
         if (text.equals("/start") || text.equals(String.format("Регистрация %s", Emojis.MEMO)) ||
                 userRepo.getByChatIdOrNew(chatId).getChatState() != ChatState.REGISTERED)
         {
-            return registerNewUser(chatId, text);
+            return new Tuple<>(registerNewUser(chatId, text), null);
         }
         else if (text.equals("/next") || text.equals(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT)) ||
                 userRepo.getByChatId(chatId).getQuestState() == QuestState.ANSWER_REQUESTED)
         {
             var skip = text.equals("/next") || text.equals(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT));
 
-            return recordNewAnswer(chatId, text, skip);
+            return new Tuple<>(recordNewAnswer(chatId, text, skip), null);
         }
         else if (text.equals("/answers") || text.equals(String.format("Список ответов %s", Emojis.SPEECH_BUBBLE)) &&
                 userRepo.getByChatId(chatId).getQuestState() == QuestState.IDLE)
@@ -28,25 +69,26 @@ public record BotLogic(UserRepository userRepo)
             return showAnswers(chatId);
         }
 
-        return "Incorrect input";
+        return new Tuple<>("Incorrect input", null);
     }
 
-    private String showAnswers(long chatId)
+    private Tuple<String, HashMap<Long, String>> showAnswers(long chatId)
     {
         var user = userRepo.getByChatId(chatId);
 
-        var output = new StringBuilder();
-        output.append(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()));
+        var answers = new HashMap<Long, String>();
 
-        for (var respondentId :
+        for (var id :
                 user.question.getAnswers().keySet())
         {
-            var answer = user.question.getAnswerByChatId(respondentId);
-            output.append(String.format("%s: %s\r\n", userRepo.getByChatId(Long.parseLong(respondentId))
-                    .getName(), answer));
+            var respondent = userRepo.getByChatId(Long.parseLong(id));
+
+            answers.put(respondent.getChatId(), String.format("%s: %s", respondent.getName(),
+                    user.question.getAnswerByChatId(id)));
         }
 
-        return output.toString();
+        return new Tuple<>(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()),
+                answers);
     }
 
     private String recordNewAnswer(long chatId, String text, boolean skip)

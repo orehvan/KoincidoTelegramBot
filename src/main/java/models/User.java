@@ -1,13 +1,14 @@
 package models;
 
-import models.Constants.Enums.QuestState;
 import models.Constants.Enums.ChatState;
+import models.Constants.Enums.QuestState;
 
 public class User
 {
     public Question question;
 
     private long chatId;
+    private String username;
     private String name;
     private String description;
     private long lastQuestionChatId;
@@ -89,5 +90,15 @@ public class User
     public String printUserProfile()
     {
         return name + "\r\n" + description;
+    }
+
+    public String getUsername()
+    {
+        return username;
+    }
+
+    public void setUsername(String username)
+    {
+        this.username = username;
     }
 }

@@ -17,4 +17,10 @@ public class Enums
         IDLE,
         ANSWER_REQUESTED
     }
+
+    public enum UpdateType
+    {
+        MESSAGE,
+        CALLBACK
+    }
 }

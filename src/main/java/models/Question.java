@@ -1,7 +1,5 @@
 package models;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -28,11 +26,6 @@ public class Question
     public void addAnswer(long chatId, String answer)
     {
         this.answers.put(Objects.toString(chatId), answer);
-    }
-
-    public Collection<String> getAllRespondentsChatIds()
-    {
-        return answers.keySet();
     }
 
     public String getAnswerByChatId(String chatId)
