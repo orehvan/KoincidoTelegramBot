@@ -9,10 +9,13 @@ public class Main
 {
     public static void main(String[] args)
     {
-        var userRepo = new MongoDBUserRepository();
+        var botName = System.getenv("TelegramBotName");
+        var botToken = System.getenv("TelegramBotToken");
+        var mongoConnectionString = System.getenv("MongoDBConnectionString");
+        var userRepo = new MongoDBUserRepository(mongoConnectionString);
 
         var bot = new BotLogic(userRepo);
-        var telegramWrapper = new TelegramApiWrapper(bot);
+        var telegramWrapper = new TelegramApiWrapper(bot, botName, botToken);
 
         try
         {

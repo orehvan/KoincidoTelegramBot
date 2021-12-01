@@ -17,7 +17,7 @@ public class MongoDBUserRepository implements UserRepository
 {
     MongoCollection<User> userRepo;
 
-    public MongoDBUserRepository()
+    public MongoDBUserRepository(String mongoConnectionString)
     {
         var codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(PojoCodecProvider.builder()
@@ -27,7 +27,7 @@ public class MongoDBUserRepository implements UserRepository
                         ).automatic(true)
                         .build()));
 
-        userRepo = MongoClients.create(System.getenv("MongoDBConnectionString")).getDatabase("BotData")
+        userRepo = MongoClients.create(mongoConnectionString).getDatabase("BotData")
                 .withCodecRegistry(codecRegistry).getCollection("UserRepository", User.class);
     }
 

@@ -19,9 +19,13 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
 {
     private final BotLogic bot;
     private final ReplyKeyboardMarkup replyKeyboardMarkup;
+    private String  telegramBotName;
+    private String telegramBotToken;
 
-    public TelegramApiWrapper(BotLogic bot)
+    public TelegramApiWrapper(BotLogic bot, String telegramBotName, String telegramBotToken)
     {
+        this.telegramBotName = telegramBotName;
+        this.telegramBotToken = telegramBotToken;
         this.bot = bot;
         this.replyKeyboardMarkup = new ReplyKeyboardMarkup();
         setReplyKeyboardMarkup();
@@ -144,14 +148,8 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
     }
 
     @Override
-    public String getBotUsername()
-    {
-        return System.getenv("TelegramBotName");
-    }
+    public String getBotUsername() {return telegramBotName;}
 
     @Override
-    public String getBotToken()
-    {
-        return System.getenv("TelegramBotToken");
-    }
+    public String getBotToken() {return telegramBotToken;}
 }
