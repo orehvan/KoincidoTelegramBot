@@ -66,5 +66,13 @@ public class MongoDBUserRepository implements UserRepository
         userRepo.updateOne(Filters.eq("chatId", user.getChatId()), new Document("$set", user),
                 new UpdateOptions().upsert(true));
     }
+
+    @Override
+    public void remove(long chatId)
+    {
+        userRepo.deleteOne(Filters.eq("chatId", chatId));
+    }
+
+
 }
 

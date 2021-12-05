@@ -34,4 +34,10 @@ public class LocalUserRepository implements UserRepository
     {
         this.userRepo.put(user.getChatId(), user);
     }
+
+    @Override
+    public void remove(long chatId)
+    {
+        this.userRepo.remove(chatId);
+    }
 }

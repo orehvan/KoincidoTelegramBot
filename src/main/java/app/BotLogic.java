@@ -17,7 +17,7 @@ public record BotLogic(UserRepository userRepo)
         userRepo.put(user);
     }
 
-    public Tuple<String, HashMap<Long, String>> formResponse(UpdateType updateType, long chatId, String text)
+    public BotResponse formResponse(UpdateType updateType, long chatId, String text)
     {
         switch (updateType)
         {
@@ -29,50 +29,60 @@ public record BotLogic(UserRepository userRepo)
                 return respondToCallback(text);
             }
             default -> {
-                return new Tuple<>("Incorrect input", null);
+                return new BotResponse("Incorrect input", null);
             }
         }
     }
 
-    private Tuple<String, HashMap<Long, String>> respondToCallback(String text)
+    private BotResponse respondToCallback(String text)
     {
         var user = userRepo.getByChatId(Long.parseLong(text));
 
         if (user == null)
         {
-            return new Tuple<>("User not found", null);
+            return new BotResponse("User not found", null);
         }
 
         var userLink = new HashMap<Long, String>();
         userLink.put(0L, String.format("t.me/%s", user.getUsername()));
 
-        return new Tuple<>(user.printUserProfile(), userLink);
+        return new BotResponse(user.printUserProfile(), userLink);
     }
 
-    private Tuple<String, HashMap<Long, String>> respondToMessage(long chatId, String text)
+    private BotResponse respondToMessage(long chatId, String text)
     {
-        if (text.equals("/start") || text.equals(String.format("Регистрация %s", Emojis.MEMO)) ||
-                userRepo.getByChatIdOrNew(chatId).getChatState() != ChatState.REGISTERED)
+        switch (text)
         {
-            return new Tuple<>(registerNewUser(chatId, text), null);
-        }
-        else if (text.equals("/next") || text.equals(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT)) ||
-                userRepo.getByChatId(chatId).getQuestState() == QuestState.ANSWER_REQUESTED)
-        {
-            var skip = text.equals("/next") || text.equals(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT));
+            case "/start" -> {
+                return new BotResponse(registerNewUser(chatId, text, true), null);
+            }
+            case "/next" -> {
+                return new BotResponse(recordNewAnswer(chatId, text, true), null);
+            }
+            case "/answers" -> {
+                return showAnswers(chatId);
+            }
+            default -> {
+                switch (userRepo.getByChatIdOrNew(chatId).getQuestState())
+                {
 
-            return new Tuple<>(recordNewAnswer(chatId, text, skip), null);
-        }
-        else if (text.equals("/answers") || text.equals(String.format("Список ответов %s", Emojis.SPEECH_BUBBLE)) &&
-                userRepo.getByChatId(chatId).getQuestState() == QuestState.IDLE)
-        {
-            return showAnswers(chatId);
+                    case UNAVAILABLE -> {
+                        return new BotResponse(registerNewUser(chatId, text, false), null);
+                    }
+                    case ANSWER_REQUESTED -> {
+                        return new BotResponse(recordNewAnswer(chatId, text, false), null);
+                    }
+                    case IDLE -> {
+                        return new BotResponse("Неверный ввод. Используйте команды для работы с ботом.", null);
+                    }
+                }
+            }
         }
 
-        return new Tuple<>("Incorrect input", null);
+        return new BotResponse("Incorrect input", null);
     }
 
-    private Tuple<String, HashMap<Long, String>> showAnswers(long chatId)
+    private BotResponse showAnswers(long chatId)
     {
         var user = userRepo.getByChatId(chatId);
 
@@ -87,7 +97,7 @@ public record BotLogic(UserRepository userRepo)
                     user.question.getAnswerByChatId(id)));
         }
 
-        return new Tuple<>(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()),
+        return new BotResponse(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()),
                 answers);
     }
 
@@ -124,8 +134,13 @@ public record BotLogic(UserRepository userRepo)
         }
     }
 
-    public String registerNewUser(long chatId, String text)
+    public String registerNewUser(long chatId, String text, boolean reset)
     {
+        if (reset)
+        {
+            userRepo.remove(chatId);
+        }
+
         var user = userRepo.getByChatIdOrNew(chatId);
 
         switch (user.getChatState())
@@ -159,13 +174,6 @@ public record BotLogic(UserRepository userRepo)
                 return "Вам тоже уже интересно, что Вам ответят?\r\n" +
                         "Пока Вы ждёте, предлагаю поотвечать на чужие вопросы. Используйте команду /next, чтобы " +
                         "получить первый вопрос!";
-            }
-            case REGISTERED -> {
-                user.setChatState(ChatState.NAME_REQUESTED);
-                user.setQuestState(QuestState.UNAVAILABLE);
-                userRepo.put(user);
-                return String.format("Окей, я сделаю вид, что вижу Вас впервые. %s", Emojis.SWEAT_GRIM) +
-                        "Так, как говорите, вас зовут?";
             }
         }
 

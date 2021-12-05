@@ -1,14 +1,11 @@
 package app;
 
-import models.Constants.Emojis;
 import models.Constants.Enums.UpdateType;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
@@ -18,17 +15,14 @@ import java.util.List;
 public class TelegramApiWrapper extends TelegramLongPollingBot
 {
     private final BotLogic bot;
-    private final ReplyKeyboardMarkup replyKeyboardMarkup;
-    private String  telegramBotName;
-    private String telegramBotToken;
+    private final String telegramBotName;
+    private final String telegramBotToken;
 
     public TelegramApiWrapper(BotLogic bot, String telegramBotName, String telegramBotToken)
     {
         this.telegramBotName = telegramBotName;
         this.telegramBotToken = telegramBotToken;
         this.bot = bot;
-        this.replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        setReplyKeyboardMarkup();
     }
 
     @Override
@@ -37,7 +31,7 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
         try
         {
             long currentChatId;
-            Tuple<String, HashMap<Long, String>> response;
+            BotResponse response;
 
             if (update.hasMessage())
             {
@@ -60,13 +54,13 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
             }
 
             InlineKeyboardMarkup inlineKeyboard = null;
-            if (response.t1() != null)
+            if (response.getKeyboardMarkup() != null)
             {
                 inlineKeyboard = new InlineKeyboardMarkup();
-                inlineKeyboard.setKeyboard(setInlineKeyboardMarkup(response.t1()));
+                inlineKeyboard.setKeyboard(setInlineKeyboardMarkup(response.getKeyboardMarkup()));
             }
 
-            sendResponse(currentChatId, response.t0(), inlineKeyboard);
+            sendResponse(currentChatId, response.getMessageText(), inlineKeyboard);
         }
         catch (Exception e)
         {
@@ -80,7 +74,6 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
         var sender = new SendMessage();
         sender.setChatId(chatId.toString());
         sender.setText(msgText);
-        sender.setReplyMarkup(replyKeyboardMarkup);
 
         if (inlineKeyboard != null)
         {
@@ -95,21 +88,6 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
         {
             e.printStackTrace();
         }
-    }
-
-    private void setReplyKeyboardMarkup()
-    {
-        var keyboard = new ArrayList<KeyboardRow>();
-        var keyboardRow = new KeyboardRow();
-
-        keyboardRow.add(String.format("Регистрация %s", Emojis.MEMO));
-        keyboardRow.add(String.format("Следующий вопрос %s", Emojis.ARROW_RIGHT));
-        keyboardRow.add(String.format("Список ответов %s", Emojis.SPEECH_BUBBLE));
-        keyboard.add(keyboardRow);
-
-        replyKeyboardMarkup.setKeyboard(keyboard);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(true);
     }
 
     private List<List<InlineKeyboardButton>> setInlineKeyboardMarkup(HashMap<Long, String> keys)
@@ -148,8 +126,14 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
     }
 
     @Override
-    public String getBotUsername() {return telegramBotName;}
+    public String getBotUsername()
+    {
+        return telegramBotName;
+    }
 
     @Override
-    public String getBotToken() {return telegramBotToken;}
+    public String getBotToken()
+    {
+        return telegramBotToken;
+    }
 }

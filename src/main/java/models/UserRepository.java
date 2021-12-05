@@ -7,4 +7,5 @@ public interface UserRepository
     User getOtherRandom(User requested);
 
     void put(User user);
+    void remove(long chatId);
 }
