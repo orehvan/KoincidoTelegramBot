@@ -97,7 +97,7 @@ public record BotLogic(UserRepository userRepo)
                     user.question.getAnswerByChatId(id)));
         }
 
-        return new BotResponse(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()),
+        return new BotResponse(String.format("На Ваш вопрос: \"%s\" \u2014 ответили:\r\n", user.question.getQuestionText()),
                 answers);
     }
 
@@ -148,7 +148,7 @@ public record BotLogic(UserRepository userRepo)
             case UNREGISTERED -> {
                 user.setChatState(ChatState.NAME_REQUESTED);
                 userRepo.put(user);
-                return String.format("Приветствую! %s Я - бот для знакомств по интересам. \r\n", Emojis.WAVE) +
+                return String.format("Приветствую! %s Я бот для знакомств по интересам. \r\n", Emojis.WAVE) +
                         "Давайте знакомиться! Как к Вам можно обращаться?";
             }
             case NAME_REQUESTED -> {
@@ -164,7 +164,7 @@ public record BotLogic(UserRepository userRepo)
                 userRepo.put(user);
                 return String.format("Вы явно интересная личность, %s!", user.getName()) +
                         "\r\nПредлагаю Вам придумать вопрос. Другие пользователи будут отвечать на него, а вы сможете" +
-                        " выбрать самые интересные ответы и пообщаться с респондентами!";
+                        " выбрать самые интересные ответы и общаться с респондентами!";
             }
             case QUESTION_REQUESTED -> {
                 user.question.setQuestionText(text);
