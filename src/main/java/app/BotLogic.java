@@ -97,7 +97,7 @@ public record BotLogic(UserRepository userRepo)
                     user.question.getAnswerByChatId(id)));
         }
 
-        return new BotResponse(String.format("На Ваш вопрос: \"%s\" \u2014 ответили:\r\n", user.question.getQuestionText()),
+        return new BotResponse(String.format("На ваш вопрос: \"%s\" \u2014 ответили:\r\n", user.question.getQuestionText()),
                 answers);
     }
 
@@ -149,7 +149,7 @@ public record BotLogic(UserRepository userRepo)
                 user.setChatState(ChatState.NAME_REQUESTED);
                 userRepo.put(user);
                 return String.format("Приветствую! %s Я бот для знакомств по интересам. \r\n", Emojis.WAVE) +
-                        "Давайте знакомиться! Как к Вам можно обращаться?";
+                        "Давайте знакомиться! Как к вам можно обращаться?";
             }
             case NAME_REQUESTED -> {
                 user.setName(text);
@@ -163,7 +163,7 @@ public record BotLogic(UserRepository userRepo)
                 user.setChatState(ChatState.QUESTION_REQUESTED);
                 userRepo.put(user);
                 return String.format("Вы явно интересная личность, %s!", user.getName()) +
-                        "\r\nПредлагаю Вам придумать вопрос. Другие пользователи будут отвечать на него, а вы сможете" +
+                        "\r\nПредлагаю вам придумать вопрос. Другие пользователи будут отвечать на него, а вы сможете" +
                         " выбрать самые интересные ответы и общаться с респондентами!";
             }
             case QUESTION_REQUESTED -> {
@@ -171,8 +171,8 @@ public record BotLogic(UserRepository userRepo)
                 user.setChatState(ChatState.REGISTERED);
                 user.setQuestState(QuestState.IDLE);
                 userRepo.put(user);
-                return "Вам тоже уже интересно, что Вам ответят?\r\n" +
-                        "Пока Вы ждёте, предлагаю поотвечать на чужие вопросы. Используйте команду /next, чтобы " +
+                return "Вам тоже уже интересно, что вам ответят?\r\n" +
+                        "Пока вы ждёте, предлагаю поотвечать на чужие вопросы. Используйте команду /next, чтобы " +
                         "получить первый вопрос!";
             }
         }
