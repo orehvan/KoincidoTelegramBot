@@ -1,9 +1,12 @@
-package models;
+package models.repos;
+
+import models.User;
 
 public interface UserRepository
 {
     User getByChatId(long chatId);
     User getByChatIdOrNew(long chatId);
+    User getByUsername(String username);
     User getOtherRandom(User requested);
 
     void put(User user);

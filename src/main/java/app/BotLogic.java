@@ -3,10 +3,9 @@ package app;
 import models.Constants.Emojis;
 import models.Constants.Enums.ChatState;
 import models.Constants.Enums.QuestState;
-import models.Constants.Enums.UpdateType;
-import models.UserRepository;
+import models.repos.UserRepository;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 
 public record BotLogic(UserRepository userRepo)
 {
@@ -17,39 +16,23 @@ public record BotLogic(UserRepository userRepo)
         userRepo.put(user);
     }
 
-    public BotResponse formResponse(UpdateType updateType, long chatId, String text)
+    public BotResponse respondToCallback(long chatId, String callback)
     {
-        switch (updateType)
-        {
+        var user = userRepo.getByChatId(chatId);
+        var respondent = userRepo.getByUsername(callback);
+        var answer = user.question.getAnswerByUsername(respondent.getUsername());
 
-            case MESSAGE -> {
-                return respondToMessage(chatId, text);
-            }
-            case CALLBACK -> {
-                return respondToCallback(text);
-            }
-            default -> {
-                return new BotResponse("Incorrect input", null);
-            }
-        }
+        var userLink = new LinkedList<KeyboardButton>();
+        var button = new KeyboardButton();
+
+        button.setUrl(String.format("t.me/%s", respondent.getUsername()));
+        button.setText("Открыть профиль в Telegram");
+        userLink.add(button);
+
+        return new BotResponse(respondent.printProfileWithAnswer(answer), userLink);
     }
 
-    private BotResponse respondToCallback(String text)
-    {
-        var user = userRepo.getByChatId(Long.parseLong(text));
-
-        if (user == null)
-        {
-            return new BotResponse("User not found", null);
-        }
-
-        var userLink = new HashMap<Long, String>();
-        userLink.put(0L, String.format("t.me/%s", user.getUsername()));
-
-        return new BotResponse(user.printUserProfile(), userLink);
-    }
-
-    private BotResponse respondToMessage(long chatId, String text)
+    public BotResponse respondToMessage(long chatId, String text)
     {
         switch (text)
         {
@@ -73,7 +56,7 @@ public record BotLogic(UserRepository userRepo)
                         return new BotResponse(recordNewAnswer(chatId, text, false), null);
                     }
                     case IDLE -> {
-                        return new BotResponse("Неверный ввод. Используйте команды для работы с ботом.", null);
+                        return new BotResponse("Неверный ввод. Используй команды для работы с ботом.", null);
                     }
                 }
             }
@@ -86,18 +69,21 @@ public record BotLogic(UserRepository userRepo)
     {
         var user = userRepo.getByChatId(chatId);
 
-        var answers = new HashMap<Long, String>();
+        var answers = new LinkedList<KeyboardButton>();
 
-        for (var id :
+        for (var username :
                 user.question.getAnswers().keySet())
         {
-            var respondent = userRepo.getByChatId(Long.parseLong(id));
+            var respondent = userRepo.getByUsername(username);
 
-            answers.put(respondent.getChatId(), String.format("%s: %s", respondent.getName(),
-                    user.question.getAnswerByChatId(id)));
+            var button = new KeyboardButton();
+            button.setText(String.format("%s: %s", respondent.getName(), user.question.getAnswerByUsername(username)));
+            button.setCallbackData(username);
+
+            answers.add(button);
         }
 
-        return new BotResponse(String.format("На Ваш вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()),
+        return new BotResponse(String.format("На твой вопрос \"%s\" ответили:\r\n", user.question.getQuestionText()),
                 answers);
     }
 
@@ -124,7 +110,7 @@ public record BotLogic(UserRepository userRepo)
         else
         {
             var questioner = userRepo.getByChatId(user.getLastQuestionChatId());
-            questioner.question.addAnswer(chatId, text);
+            questioner.question.addAnswer(user.getUsername(), text);
             userRepo.put(questioner);
 
             user.setQuestState(QuestState.IDLE);
@@ -149,21 +135,21 @@ public record BotLogic(UserRepository userRepo)
                 user.setChatState(ChatState.NAME_REQUESTED);
                 userRepo.put(user);
                 return String.format("Приветствую! %s Я - бот для знакомств по интересам. \r\n", Emojis.WAVE) +
-                        "Давайте знакомиться! Как к Вам можно обращаться?";
+                        "Давай знакомиться! Как к тебе можно обращаться?";
             }
             case NAME_REQUESTED -> {
                 user.setName(text);
                 user.setChatState(ChatState.DESCRIPTION_REQUESTED);
                 userRepo.put(user);
                 return String.format("Очень рад, %s!", user.getName()) +
-                        "\r\nРасскажите что-нибудь о себе, буквально пару слов.";
+                        "\r\nРасскажи что-нибудь о себе, буквально пару слов.";
             }
             case DESCRIPTION_REQUESTED -> {
                 user.setDescription(text);
                 user.setChatState(ChatState.QUESTION_REQUESTED);
                 userRepo.put(user);
-                return String.format("Вы явно интересная личность, %s!", user.getName()) +
-                        "\r\nПредлагаю Вам придумать вопрос. Другие пользователи будут отвечать на него, а вы сможете" +
+                return String.format("Ты явно интересная личность, %s!", user.getName()) +
+                        "\r\nПредлагаю придумать вопрос. Другие пользователи будут отвечать на него, а ты сможешь" +
                         " выбрать самые интересные ответы и пообщаться с респондентами!";
             }
             case QUESTION_REQUESTED -> {
@@ -171,8 +157,8 @@ public record BotLogic(UserRepository userRepo)
                 user.setChatState(ChatState.REGISTERED);
                 user.setQuestState(QuestState.IDLE);
                 userRepo.put(user);
-                return "Вам тоже уже интересно, что Вам ответят?\r\n" +
-                        "Пока Вы ждёте, предлагаю поотвечать на чужие вопросы. Используйте команду /next, чтобы " +
+                return "Тоже уже интересно, что тебе ответят?\r\n" +
+                        "Пока ждёшь, предлагаю поотвечать на чужие вопросы. Используй команду /next, чтобы " +
                         "получить первый вопрос!";
             }
         }

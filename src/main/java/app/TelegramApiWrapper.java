@@ -1,6 +1,5 @@
 package app;
 
-import models.Constants.Enums.UpdateType;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -9,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TelegramApiWrapper extends TelegramLongPollingBot
@@ -33,20 +32,21 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
             long currentChatId;
             BotResponse response;
 
+
             if (update.hasMessage())
             {
                 var message = update.getMessage();
                 currentChatId = message.getChatId();
                 var currentUsername = message.getFrom().getUserName();
 
-                response = bot.formResponse(UpdateType.MESSAGE, currentChatId, message.getText());
+                response = bot.respondToMessage(currentChatId, message.getText());
                 bot.updateUsername(currentChatId, currentUsername);
             }
             else if (update.hasCallbackQuery())
             {
                 var callbackQuery = update.getCallbackQuery();
                 currentChatId = callbackQuery.getMessage().getChatId();
-                response = bot.formResponse(UpdateType.CALLBACK, currentChatId, callbackQuery.getData());
+                response = bot.respondToCallback(currentChatId, callbackQuery.getData());
             }
             else
             {
@@ -90,36 +90,22 @@ public class TelegramApiWrapper extends TelegramLongPollingBot
         }
     }
 
-    private List<List<InlineKeyboardButton>> setInlineKeyboardMarkup(HashMap<Long, String> keys)
+    private List<List<InlineKeyboardButton>> setInlineKeyboardMarkup(LinkedList<KeyboardButton> keyboardButtons)
     {
         var keyboardArray = new ArrayList<List<InlineKeyboardButton>>();
 
-        if (keys.containsKey(0L))
+        for (var button :
+                keyboardButtons)
         {
             var row = new ArrayList<InlineKeyboardButton>();
-            var button = new InlineKeyboardButton();
+            var inlineKeyboardButton = new InlineKeyboardButton();
 
-            button.setText("Открыть профиль пользователя в Telegram");
-            button.setUrl(keys.get(0L));
+            inlineKeyboardButton.setText(button.getText());
+            inlineKeyboardButton.setCallbackData(button.getCallbackData());
+            inlineKeyboardButton.setUrl(button.getUrl());
 
-            row.add(button);
+            row.add(inlineKeyboardButton);
             keyboardArray.add(row);
-        }
-        else
-        {
-            for (var key :
-                    keys.keySet())
-            {
-                var row = new ArrayList<InlineKeyboardButton>();
-                var button = new InlineKeyboardButton();
-
-                button.setText(keys.get(key));
-                button.setCallbackData(key.toString());
-
-                row.add(button);
-                keyboardArray.add(row);
-            }
-
         }
 
         return keyboardArray;

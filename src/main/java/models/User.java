@@ -87,9 +87,11 @@ public class User
         this.questState = questState;
     }
 
-    public String printUserProfile()
+    public String printProfileWithAnswer(String answer)
     {
-        return name + "\r\n" + description;
+        return String.format("Имя: %s\r\n" +
+                            "Описание: %s\r\n" +
+                            "Ответ на твой вопрос: \"%s\"", name, description, answer);
     }
 
     public String getUsername()

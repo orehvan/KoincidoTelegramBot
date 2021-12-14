@@ -1,7 +1,6 @@
 package models;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Question
 {
@@ -23,14 +22,14 @@ public class Question
         this.answers = answers;
     }
 
-    public void addAnswer(long chatId, String answer)
+    public void addAnswer(String username, String answer)
     {
-        this.answers.put(Objects.toString(chatId), answer);
+        this.answers.put(username, answer);
     }
 
-    public String getAnswerByChatId(String chatId)
+    public String getAnswerByUsername(String username)
     {
-        return this.answers.getOrDefault(chatId, "Missing ChatId");
+        return this.answers.getOrDefault(username, "Missing Username");
     }
 
     public String getQuestionText()

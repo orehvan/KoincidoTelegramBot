@@ -1,4 +1,4 @@
-package models;
+package models.repos;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
@@ -6,6 +6,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
+import models.Question;
+import models.User;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.ClassModel;
@@ -43,6 +45,12 @@ public class MongoDBUserRepository implements UserRepository
         var user = userRepo.find(Filters.eq("chatId", chatId)).first();
 
         return user == null ? new User(chatId) : user;
+    }
+
+    @Override
+    public User getByUsername(String username)
+    {
+        return userRepo.find(Filters.eq("username", username)).first();
     }
 
     @Override

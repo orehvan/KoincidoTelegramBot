@@ -1,4 +1,6 @@
-package models;
+package models.repos;
+
+import models.User;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -20,6 +22,12 @@ public class LocalUserRepository implements UserRepository
     public User getByChatIdOrNew(long chatId)
     {
         return userRepo.getOrDefault(chatId, new User(chatId));
+    }
+
+    @Override
+    public User getByUsername(String username)
+    {
+        return null;
     }
 
     public User getOtherRandom(User requested)
