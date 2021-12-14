@@ -134,7 +134,7 @@ public record BotLogic(UserRepository userRepo)
             case UNREGISTERED -> {
                 user.setChatState(ChatState.NAME_REQUESTED);
                 userRepo.put(user);
-                return String.format("Приветствую! %s Я - бот для знакомств по интересам. \r\n", Emojis.WAVE) +
+                return String.format("Приветствую! %s Я бот для знакомств по интересам. \r\n", Emojis.WAVE) +
                         "Давай знакомиться! Как к тебе можно обращаться?";
             }
             case NAME_REQUESTED -> {
