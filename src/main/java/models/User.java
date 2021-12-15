@@ -3,9 +3,12 @@ package models;
 import models.Constants.Enums.ChatState;
 import models.Constants.Enums.QuestState;
 
+import java.util.ArrayList;
+
 public class User
 {
     public Question question;
+    public ArrayList<String> answeredUsernames;
 
     private long chatId;
     private String username;
@@ -21,6 +24,7 @@ public class User
 
     public User(long chatId)
     {
+        this.answeredUsernames = new ArrayList<>();
         this.chatId = chatId;
         this.question = new Question();
         this.chatState = ChatState.UNREGISTERED;
@@ -103,4 +107,5 @@ public class User
     {
         this.username = username;
     }
+
 }

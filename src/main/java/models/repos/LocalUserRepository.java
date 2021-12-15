@@ -38,6 +38,12 @@ public class LocalUserRepository implements UserRepository
         return (User) users[generator.nextInt(users.length)];
     }
 
+    @Override
+    public long count()
+    {
+        return userRepo.size();
+    }
+
     public void put(User user)
     {
         this.userRepo.put(user.getChatId(), user);

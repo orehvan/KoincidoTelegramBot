@@ -68,6 +68,11 @@ public class MongoDBUserRepository implements UserRepository
         return user;
     }
 
+    public long count()
+    {
+        return userRepo.countDocuments();
+    }
+
     @Override
     public void put(User user)
     {

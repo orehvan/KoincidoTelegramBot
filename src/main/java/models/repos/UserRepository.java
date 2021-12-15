@@ -9,6 +9,8 @@ public interface UserRepository
     User getByUsername(String username);
     User getOtherRandom(User requested);
 
+    long count();
+
     void put(User user);
     void remove(long chatId);
 }

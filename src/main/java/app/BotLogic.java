@@ -68,7 +68,6 @@ public record BotLogic(UserRepository userRepo)
     private BotResponse showAnswers(long chatId)
     {
         var user = userRepo.getByChatId(chatId);
-
         var answers = new LinkedList<KeyboardButton>();
 
         for (var username :
@@ -101,6 +100,17 @@ public record BotLogic(UserRepository userRepo)
 
             user.setQuestState(QuestState.ANSWER_REQUESTED);
             var questioner = userRepo.getOtherRandom(user);
+
+            if (user.answeredUsernames.size() == userRepo.count() - 1)
+            {
+                return "Новых вопросов пока нет. Загляни попозже!";
+            }
+
+            while (user.answeredUsernames.contains(questioner.getUsername()))
+            {
+                questioner = userRepo.getOtherRandom(user);
+            }
+
             user.setLastQuestionChatId(questioner.getChatId());
             userRepo.put(user);
 
@@ -114,6 +124,7 @@ public record BotLogic(UserRepository userRepo)
             userRepo.put(questioner);
 
             user.setQuestState(QuestState.IDLE);
+            user.answeredUsernames.add(questioner.getUsername());
             userRepo.put(user);
 
             return String.format("Ответ записан. %s /next?", Emojis.WHITE_CHECK_MARK);
